@@ -1,0 +1,9 @@
+---
+headers:
+  method: GET
+  path: /repos/{repo:[^/]+/[^/]+}/issues/{issue:[0-9]+}/comments
+response:
+  status: 200
+  # file: post-comment.response.json
+  output: '{"status": 200}'
+  content-type: text/json
