@@ -1,17 +1,19 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/gorilla/mux"
 	"gopkg.in/yaml.v2"
 )
+
+const srvAddr = "0.0.0.0:8080"
 
 type Fixture struct {
 	Headers struct {
@@ -32,7 +34,7 @@ func Handler(w http.ResponseWriter, r *http.Request, fixture *Fixture) {
 	var err error
 
 	if fixture.Response.File != "" {
-		output, err = ioutil.ReadFile(filepath.Join("fixtures", fixture.Response.File))
+		output, err = ioutil.ReadFile(fixture.Response.File)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
@@ -55,43 +57,37 @@ func Handler(w http.ResponseWriter, r *http.Request, fixture *Fixture) {
 	}
 }
 
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println(r.Method, r.RequestURI)
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	router := mux.NewRouter()
+	var yamlString string
 
-	if _, err := os.Stat("fixtures/"); os.IsNotExist(err) {
-		log.Fatal("Fixtures repository doesn't exist")
+	if yamlString = os.Getenv("CONFIG"); yamlString == "" {
+		log.Fatal("cannot get configuration from environment variable `CONFIG`")
 	}
-
-	fixtures, err := filepath.Glob("fixtures/*.yaml")
-	if err != nil {
-		log.Fatal(err)
-	}
-	if len(fixtures) == 0 {
-		log.Fatal("No tests has been found in fixtures/ directory")
-	}
-
-	for _, fixture := range fixtures {
-		fp, err := ioutil.ReadFile(fixture)
-		if err != nil {
-			log.Fatal(err)
-		}
-		var yamlFixture Fixture
-		err = yaml.Unmarshal(fp, &yamlFixture)
-		if err != nil {
-			log.Fatal(err)
-		}
+	var yamlFixture Fixture
+	reader := bytes.NewReader([]byte(yamlString))
+	decoder := yaml.NewDecoder(reader)
+	for decoder.Decode(&yamlFixture) == nil {
 		router.HandleFunc(yamlFixture.Headers.Path, func(w http.ResponseWriter, r *http.Request) {
 			Handler(w, r, &yamlFixture)
 		}).Methods(yamlFixture.Headers.Method)
 	}
 
+	router.Use(loggingMiddleware)
+
 	srv := &http.Server{
 		Handler:      router,
-		Addr:         "127.0.0.1:8080",
+		Addr:         srvAddr,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-
-	fmt.Println("Serving on 127.0.0.1:8080....\n")
+	fmt.Println("Serving on " + srvAddr + "....\n")
 	log.Fatal(srv.ListenAndServe())
 }

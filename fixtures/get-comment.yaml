@@ -1,6 +1,6 @@
 ---
 headers:
-  method: POST
+  method: GET
   path: /repos/{repo:[^/]+/[^/]+}/issues/{issue:[0-9]+}/comments
 response:
   status: 200
