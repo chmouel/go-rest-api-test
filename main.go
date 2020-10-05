@@ -81,6 +81,7 @@ func main() {
 	}
 
 	router.Use(loggingMiddleware)
+	router.NotFoundHandler = router.NewRoute().HandlerFunc(http.NotFound).GetHandler()
 
 	srv := &http.Server{
 		Handler:      router,
