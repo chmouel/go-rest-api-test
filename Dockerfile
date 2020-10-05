@@ -7,7 +7,7 @@ WORKDIR src
 ENV GO111MODULE on
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags '-w'  -o /usr/local/bin/go-rest-api-test
 
-FROM alpine
+FROM scratch
 
 COPY --from=builder /usr/local/bin/go-rest-api-test /usr/local/bin/go-rest-api-test
 
