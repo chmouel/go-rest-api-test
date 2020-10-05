@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v3"
 )
 
 const srvAddr = "0.0.0.0:8080"
@@ -71,10 +71,15 @@ func main() {
 	if yamlString = os.Getenv("CONFIG"); yamlString == "" {
 		log.Fatal("cannot get configuration from environment variable `CONFIG`")
 	}
-	var yamlFixture Fixture
 	reader := bytes.NewReader([]byte(yamlString))
 	decoder := yaml.NewDecoder(reader)
-	for decoder.Decode(&yamlFixture) == nil {
+
+	for {
+		var yamlFixture Fixture
+		if decoder.Decode(&yamlFixture) != nil {
+			break
+		}
+		log.Printf("Adding: %s", yamlFixture.Headers.Path)
 		router.HandleFunc(yamlFixture.Headers.Path, func(w http.ResponseWriter, r *http.Request) {
 			Handler(w, r, &yamlFixture)
 		}).Methods(yamlFixture.Headers.Method)
