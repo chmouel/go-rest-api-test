@@ -12,7 +12,10 @@ import (
 const srvAddr = "0.0.0.0:8080"
 
 func main() {
-	router := reflector.NewRouter()
+	router, err := reflector.NewRouter()
+	if err != nil {
+		log.Fatal(err)
+	}
 	srv := &http.Server{
 		Handler:      router,
 		Addr:         srvAddr,
