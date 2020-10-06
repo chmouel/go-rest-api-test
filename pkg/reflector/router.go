@@ -2,6 +2,7 @@ package reflector
 
 import (
 	"bytes"
+	"errors"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -60,12 +61,12 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func NewRouter() *mux.Router {
+func NewRouter() (*mux.Router, error) {
 	router := mux.NewRouter()
 	var yamlString string
 
 	if yamlString = os.Getenv("CONFIG"); yamlString == "" {
-		log.Fatal("cannot get configuration from environment variable `CONFIG`")
+		return nil, errors.New("Cannot get CONFIG enviroment variable")
 	}
 	reader := bytes.NewReader([]byte(yamlString))
 	decoder := yaml.NewDecoder(reader)
@@ -75,7 +76,7 @@ func NewRouter() *mux.Router {
 		if decoder.Decode(&yamlFixture) != nil {
 			break
 		}
-		log.Printf("Adding: %s", yamlFixture.Headers.Path)
+		log.Printf("Adding route: %s", yamlFixture.Headers.Path)
 		router.HandleFunc(yamlFixture.Headers.Path, func(w http.ResponseWriter, r *http.Request) {
 			handler(w, r, &yamlFixture)
 		}).Methods(yamlFixture.Headers.Method)
@@ -83,5 +84,5 @@ func NewRouter() *mux.Router {
 
 	router.Use(loggingMiddleware)
 	router.NotFoundHandler = router.NewRoute().HandlerFunc(http.NotFound).GetHandler()
-	return router
+	return router, nil
 }

@@ -48,7 +48,8 @@ response:
 ---`
 
 func newRecord(method, path string) *httptest.ResponseRecorder {
-	router := NewRouter()
+	router, _ := NewRouter()
+
 	req, _ := http.NewRequest(method, path, nil)
 	res := httptest.NewRecorder()
 
@@ -56,11 +57,27 @@ func newRecord(method, path string) *httptest.ResponseRecorder {
 	return res
 }
 
-func TestNewRouterSingle(t *testing.T) {
+func TestMain(m *testing.M) {
 	oldConfig := os.Getenv("CONFIG")
 	defer func() {
+		fmt.Printf("RESTORING")
 		os.Setenv("CONFIG", oldConfig)
 	}()
+
+	code := m.Run()
+	os.Exit(code)
+}
+
+func TestNoConfig(t *testing.T) {
+	os.Setenv("CONFIG", "")
+
+	_, err := NewRouter()
+	if err == nil {
+		t.Error("NewRouter should have bimmed out without CONFIG")
+	}
+}
+
+func TestNewRouterSingle(t *testing.T) {
 	os.Setenv("CONFIG", YamlSingle)
 
 	res := newRecord("GET", "/hello/moto.txt")
@@ -84,10 +101,6 @@ func TestNewRouterSingle(t *testing.T) {
 }
 
 func TestNewRouterDoubles(t *testing.T) {
-	oldConfig := os.Getenv("CONFIG")
-	defer func() {
-		os.Setenv("CONFIG", oldConfig)
-	}()
 	os.Setenv("CONFIG", YamlDoubles)
 
 	res := newRecord("GET", "/1.txt")
@@ -117,10 +130,6 @@ func TestResponseFile(t *testing.T) {
 	_ = ioutil.WriteFile(file.Name(), []byte(thestring), 0644)
 	defer os.Remove(file.Name())
 
-	oldConfig := os.Getenv("CONFIG")
-	defer func() {
-		os.Setenv("CONFIG", oldConfig)
-	}()
 	os.Setenv("CONFIG", fmt.Sprintf(YamlWithFile, file.Name()))
 
 	res := newRecord("GET", "/testme.txt")
