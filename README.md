@@ -1,5 +1,5 @@
 [![GolangCI](https://golangci.com/badges/github.com/chmouel/go-rest-api-test.svg)](https://golangci.com/r/github.com/chmouel/go-rest-api-test)
-[![License](https://img.shields.io/github/license/chmouel/go-rest-api-test)](/LICENSE)
+[![License](https://img.shields.io/github/license/chmouel/go-rest-api-test?)](/LICENSE)
 
 Go rest api tester
 ==================
