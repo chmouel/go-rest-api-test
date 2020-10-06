@@ -33,7 +33,7 @@ func handler(w http.ResponseWriter, r *http.Request, fixture *Fixture) {
 		output, err = ioutil.ReadFile(fixture.Response.File)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			_, _ = w.Write([]byte(err.Error()))
 			return
 		}
 	}
