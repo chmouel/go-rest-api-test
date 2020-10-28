@@ -1,0 +1,8 @@
+tasks:
+  - git-clone
+  - golangci-lint
+  - golang-test
+
+files:
+  - pipeline.yaml
+  - run.yaml
