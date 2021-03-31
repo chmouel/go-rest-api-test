@@ -4,7 +4,9 @@
 Go rest api tester
 ==================
 
-Simple HTTP rest api responder, which respondes according to rules.
+Simple HTTP rest api responder, responding whatever you like according to rules. Useful for integration tests.
+
+Used in https://github.com/tektoncd/catalog task testing!
 
 RULES
 =====
