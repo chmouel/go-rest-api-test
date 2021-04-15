@@ -8,6 +8,8 @@ Simple HTTP rest api responder, responding whatever you like according to rules.
 
 Used in https://github.com/tektoncd/catalog task testing!
 
+See some documentation here: https://github.com/tektoncd/catalog/blob/main/CONTRIBUTING.md#end-to-end-testing-for-external-services
+
 RULES
 =====
 
