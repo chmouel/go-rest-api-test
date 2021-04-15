@@ -23,4 +23,4 @@ response:
   # file: post-comment.response.json
   output: '{"status": 200}'
   content-type: text/json
-``
+```
