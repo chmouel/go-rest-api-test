@@ -22,6 +22,6 @@ func main() {
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-	fmt.Println("Serving on " + srvAddr + "....\n")
+	fmt.Println("Serving on " + srvAddr)
 	log.Fatal(srv.ListenAndServe())
 }
